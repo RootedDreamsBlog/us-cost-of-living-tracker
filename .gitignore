@@ -1,5 +1,14 @@
-.venv/
+# Python
 __pycache__/
-*.pyc
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+
+# OS
 .DS_Store
-.claude/
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
