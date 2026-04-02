@@ -111,9 +111,14 @@ def merge_data(existing: dict, api_result: dict) -> dict:
             key = (obs["year"], obs["period"])
             if obs["period"].startswith("M"):
                 month = int(obs["period"][1:])
+                if month > 12:
+                    continue  # Skip annual averages (M13)
                 date_str = f"{obs['year']}-{month:02d}"
             else:
-                continue  # Skip annual averages (M13)
+                continue
+            # Skip unavailable data points (e.g. "-")
+            if obs["value"] == "-" or obs["value"] is None:
+                continue
             obs_map[key] = {
                 "year": obs["year"],
                 "period": obs["period"],
@@ -143,7 +148,12 @@ def compute_yoy(data: dict) -> dict:
     yoy_data = {}
     for sid, series_info in data["series"].items():
         observations = series_info["data"]
-        value_map = {d["date"]: float(d["value"]) for d in observations}
+        value_map = {}
+        for d in observations:
+            try:
+                value_map[d["date"]] = float(d["value"])
+            except (ValueError, TypeError):
+                continue  # Skip unavailable data points
         yoy_list = []
         for obs in observations:
             date = obs["date"]
